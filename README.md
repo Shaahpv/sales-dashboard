@@ -13,3 +13,5 @@ Interactive sales analytics dashboard built with Python and Streamlit.
 - KPI metrics (Sales, Profit, Units)
 - Interactive charts
 - Raw data table
+## 🚀 Live Demo
+👉 https://sales-dashboard-isfwatzplzw8xsosne85c2.streamlit.app/
