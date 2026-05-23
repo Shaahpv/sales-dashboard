@@ -1,12 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 
 st.set_page_config(page_title="Sales Dashboard", page_icon="📊", layout="wide")
 
-# Generate data
 @st.cache_data
 def load_data():
     np.random.seed(42)
@@ -63,38 +61,34 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Sales by Product")
-    product_sales = filtered_df.groupby("Product")["Sales"].sum().sort_values()
-    fig, ax = plt.subplots()
-    ax.barh(product_sales.index, product_sales.values, color="steelblue")
-    ax.set_xlabel("Sales ($)")
-    st.pyplot(fig)
+    product_sales = filtered_df.groupby("Product")["Sales"].sum().reset_index()
+    fig = px.bar(product_sales, x="Sales", y="Product", orientation="h",
+                 color="Sales", color_continuous_scale="Blues")
+    st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     st.subheader("Sales by Region")
-    region_sales = filtered_df.groupby("Region")["Sales"].sum()
-    fig, ax = plt.subplots()
-    ax.pie(region_sales.values, labels=region_sales.index, autopct="%1.1f%%",
-           colors=["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"])
-    st.pyplot(fig)
+    region_sales = filtered_df.groupby("Region")["Sales"].sum().reset_index()
+    fig = px.pie(region_sales, values="Sales", names="Region",
+                 color_discrete_sequence=px.colors.qualitative.Set2)
+    st.plotly_chart(fig, use_container_width=True)
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Monthly Sales Trend")
-    monthly_sales = filtered_df.groupby(filtered_df["Date"].dt.month)["Sales"].sum()
-    fig, ax = plt.subplots()
-    ax.plot(monthly_sales.index, monthly_sales.values, marker="o", color="green", linewidth=2)
-    ax.set_xlabel("Month")
-    ax.set_ylabel("Sales ($)")
-    st.pyplot(fig)
+    filtered_df["MonthNum"] = filtered_df["Date"].dt.month
+    monthly_sales = filtered_df.groupby("MonthNum")["Sales"].sum().reset_index()
+    fig = px.line(monthly_sales, x="MonthNum", y="Sales",
+                  markers=True, color_discrete_sequence=["green"])
+    fig.update_xaxes(title="Month")
+    st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     st.subheader("Sales vs Profit")
-    fig, ax = plt.subplots()
-    ax.scatter(filtered_df["Sales"], filtered_df["Profit"], alpha=0.5, color="purple")
-    ax.set_xlabel("Sales ($)")
-    ax.set_ylabel("Profit ($)")
-    st.pyplot(fig)
+    fig = px.scatter(filtered_df, x="Sales", y="Profit",
+                     color="Product", opacity=0.6)
+    st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
